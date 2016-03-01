@@ -9,7 +9,7 @@ import (
 )
 
 type Router struct {
-	CharacterRepository repositories.CharacterRepository `inject:""`
+	PlanetRepository repositories.PlanetRepository `inject:""`
 }
 
 func (router Router) NewRouter() *mux.Router {
@@ -18,7 +18,7 @@ func (router Router) NewRouter() *mux.Router {
 
 	r.PathPrefix("/api").Handler(negroni.New(
 		negroni.HandlerFunc(ApiHeaderMiddleware),
-		negroni.Wrap(apiRouter(router.CharacterRepository)),
+		negroni.Wrap(apiRouter(router.PlanetRepository)),
 	))
 
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./web/public/")))
@@ -27,12 +27,12 @@ func (router Router) NewRouter() *mux.Router {
 
 }
 
-func apiRouter(characters repositories.CharacterRepository) *mux.Router {
+func apiRouter(planets repositories.PlanetRepository) *mux.Router {
 
 	r := mux.NewRouter()
 
-	r.HandleFunc("/api/{name:[a-z]+}/characters", handlers.GetCharacters(characters)).Methods("GET")
-	r.HandleFunc("/api/{name:[a-z]+}/characters", handlers.SaveCharacters(characters)).Methods("POST")
+	r.HandleFunc("/api/{name:[a-z]+}/planets/{id}", handlers.GetPlanet(planets)).Methods("GET")
+	r.HandleFunc("/api/{name:[a-z]+}/planets", handlers.SavePlanet(planets)).Methods("POST")
 
 	return r
 }

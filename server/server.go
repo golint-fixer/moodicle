@@ -8,21 +8,16 @@ import (
 	"github.com/mattdotmatt/moodicle/routers"
 	"log"
 	"net/http"
-	"github.com/boltdb/bolt"
 )
 
-func Start(port int) {
+func Start(port int, folder string) {
 
 	var router routers.Router
 	var graph inject.Graph
 
-	// Create database
-	db, err := bolt.Open("my.db", 0600, nil)
-
 	// Setup DI
 	if err := graph.Provide(
-		&inject.Object{Value: db},
-		&inject.Object{Value: repositories.NewCharacterRepository()},
+		&inject.Object{Value: repositories.NewPlanetRepository(folder)},
 		&inject.Object{Value: &router}); err != nil {
 		log.Fatalf("Error providing dependencies: ", err.Error())
 	}
@@ -34,7 +29,7 @@ func Start(port int) {
 	n := negroni.Classic()
 	n.UseHandler(router.NewRouter())
 
-	err = http.ListenAndServe(fmt.Sprintf(":%v", port), n)
+	err := http.ListenAndServe(fmt.Sprintf(":%v", port), n)
 
 	if err != nil {
 		panic("Error: " + err.Error())
