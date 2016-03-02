@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"github.com/mattdotmatt/moodicle/models"
 	"io/ioutil"
-	"log"
 	"os"
 )
 
 type PlanetRepository interface {
-	Planet(owner string, id string) (models.Planet, error)
+	GetPlanets(owner string) ([]models.Planet, error)
+	GetPlanet(owner string, id string) (models.Planet, error)
 	SavePlanet(owner string, planet models.Planet) error
 }
 
@@ -23,7 +23,35 @@ func NewPlanetRepository(fileLocation string) PlanetRepository {
 	return &repo
 }
 
-func (db *planetRepository) Planet(owner string, id string) (models.Planet, error) {
+func (db *planetRepository) GetPlanets(owner string) ([]models.Planet, error) {
+
+	planets := []models.Planet{}
+
+	folder := fmt.Sprintf("%s/%s/", db.FileLocation, owner)
+
+	files, _ := ioutil.ReadDir(folder)
+
+	var err error
+
+	for _, f := range files {
+		planet := models.Planet{}
+
+		file := fmt.Sprintf("%s/%s", folder, f.Name())
+
+		content, err := ioutil.ReadFile(file)
+		if err == nil {
+			err = json.Unmarshal(content, &planet)
+
+			if err == nil {
+				planets = append(planets, planet)
+			}
+		}
+	}
+
+	return planets, err
+}
+
+func (db *planetRepository) GetPlanet(owner string, id string) (models.Planet, error) {
 
 	planet := models.Planet{}
 
@@ -36,8 +64,6 @@ func (db *planetRepository) Planet(owner string, id string) (models.Planet, erro
 	if err == nil {
 		err = json.Unmarshal(content, &planet)
 	}
-
-	log.Println(err)
 
 	return planet, err
 }

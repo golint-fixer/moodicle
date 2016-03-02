@@ -7,32 +7,55 @@ import (
 	"github.com/mattdotmatt/moodicle/repositories"
 	"github.com/satori/go.uuid"
 	"gopkg.in/validator.v2"
-	"log"
 	"net/http"
 )
 
 /*
-	Get all the characters in the database
+	Get a planet
 */
 func GetPlanet(planets repositories.PlanetRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		apiKey := r.Header.Get("API_KEY")
-
-		if apiKey != "1234" {
+		if !authenticate(r) {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
 		p := mux.Vars(r)
 
-		tester := p["name"]
+		owner := p["name"]
 		id := p["id"]
 
-		c, err := planets.Planet(tester, id)
+		c, err := planets.GetPlanet(owner, id)
 
 		if planets == nil || err != nil {
 			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		json.NewEncoder(w).Encode(c)
+	}
+}
+
+/*
+	Get all planets
+*/
+func GetPlanets(planets repositories.PlanetRepository) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		if !authenticate(r) {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		p := mux.Vars(r)
+
+		owner := p["name"]
+
+		c, err := planets.GetPlanets(owner)
+
+		if planets == nil || err != nil {
+			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
@@ -46,6 +69,11 @@ func GetPlanet(planets repositories.PlanetRepository) http.HandlerFunc {
 func SavePlanet(planets repositories.PlanetRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
+		if !authenticate(r) {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
 		p := mux.Vars(r)
 
 		owner := p["name"]
@@ -55,8 +83,6 @@ func SavePlanet(planets repositories.PlanetRepository) http.HandlerFunc {
 		var input models.Planet
 
 		err := decoder.Decode(&input)
-
-		log.Println(err)
 
 		// Validate input
 		if err := validator.Validate(input); err != nil {
@@ -75,4 +101,15 @@ func SavePlanet(planets repositories.PlanetRepository) http.HandlerFunc {
 		json.NewEncoder(w).Encode(input.Id)
 		w.WriteHeader(http.StatusOK)
 	}
+}
+
+func authenticate(r *http.Request) bool {
+
+	apiKey := r.Header.Get("API_KEY")
+
+	if apiKey != "1234" {
+		return false
+	}
+
+	return true
 }
