@@ -98,7 +98,7 @@ func SavePlanet(planets repositories.PlanetRepository) http.HandlerFunc {
 			return
 		}
 
-		json.NewEncoder(w).Encode(input.Id)
+		json.NewEncoder(w).Encode(models.Planet{Id:input.Id})
 		w.WriteHeader(http.StatusOK)
 	}
 }
