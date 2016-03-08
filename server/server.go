@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"github.com/blang/vfs"
 	"github.com/codegangsta/negroni"
 	"github.com/facebookgo/inject"
 	"github.com/mattdotmatt/moodicle/repositories"
@@ -15,9 +16,11 @@ func Start(port int, folder string) {
 	var router routers.Router
 	var graph inject.Graph
 
+	var osfs vfs.Filesystem = vfs.OS()
+
 	// Setup DI
 	if err := graph.Provide(
-		&inject.Object{Value: repositories.NewPlanetRepository(folder)},
+		&inject.Object{Value: repositories.NewPlanetRepository(folder, osfs)},
 		&inject.Object{Value: &router}); err != nil {
 		log.Fatalf("Error providing dependencies: ", err.Error())
 	}

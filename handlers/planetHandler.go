@@ -7,6 +7,7 @@ import (
 	"github.com/mattdotmatt/moodicle/repositories"
 	"github.com/satori/go.uuid"
 	"gopkg.in/validator.v2"
+	"log"
 	"net/http"
 )
 
@@ -55,6 +56,7 @@ func GetPlanets(planets repositories.PlanetRepository) http.HandlerFunc {
 		c, err := planets.GetPlanets(owner)
 
 		if planets == nil || err != nil {
+			log.Println(err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -99,7 +101,7 @@ func SavePlanet(planets repositories.PlanetRepository) http.HandlerFunc {
 		}
 
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(models.Planet{Id:input.Id})
+		json.NewEncoder(w).Encode(models.Planet{Id: input.Id})
 	}
 }
 
