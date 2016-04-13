@@ -35,6 +35,7 @@ func apiRouter(planets repositories.PlanetRepository) *mux.Router {
 	r.HandleFunc("/api/{name:[a-z]+}/planets", handlers.SavePlanet(planets)).Methods("POST")
 
 	r.HandleFunc("/api/{name:[a-z]+}/planets/{id}", handlers.GetPlanet(planets)).Methods("GET")
+	r.HandleFunc("/api/{name:[a-z]+}/planets/{id}", handlers.DeletePlanet(planets)).Methods("DELETE")
 
 	return r
 }

@@ -38,6 +38,27 @@ func TestGetCharacters(t *testing.T) {
 
 		})
 
+		Convey("When I delete an existing planet", func() {
+
+			planet, err := repository.GetPlanet("bob", "1234")
+
+			So(err, ShouldBeNil)
+			So(planet.Id, ShouldEqual, "1234")
+
+			err = repository.DeletePlanet("bob", "1234")
+
+			So(err, ShouldBeNil)
+
+			planet, err = repository.GetPlanet("bob", "1234")
+
+			Convey("Then I should not get back the requested planet", func() {
+
+				So(err, ShouldBeNil)
+				So(planet.Id, ShouldEqual, "1234")
+			})
+
+		})
+
 		Convey("When I request an unknown planet", func() {
 
 			planet, err := repository.GetPlanet("bob", "UNKNOWN")

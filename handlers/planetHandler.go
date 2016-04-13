@@ -105,6 +105,34 @@ func SavePlanet(planets repositories.PlanetRepository) http.HandlerFunc {
 	}
 }
 
+/*
+	Delete a planet
+*/
+func DeletePlanet(planets repositories.PlanetRepository) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		if !authenticate(r) {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		p := mux.Vars(r)
+
+		owner := p["name"]
+		id := p["id"]
+
+		err := planets.DeletePlanet(owner, id)
+
+		if planets == nil || err != nil {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+
+	}
+}
+
 func authenticate(r *http.Request) bool {
 
 	apiKey := r.Header.Get("API_KEY")
