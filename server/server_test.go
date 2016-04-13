@@ -1,4 +1,4 @@
-package specs
+package server
 
 import (
 	"github.com/blang/vfs"
