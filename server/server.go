@@ -22,11 +22,11 @@ func Start(port int, folder string) {
 	if err := graph.Provide(
 		&inject.Object{Value: repositories.NewPlanetRepository(folder, osfs)},
 		&inject.Object{Value: &router}); err != nil {
-		log.Fatalf("Error providing dependencies: ", err.Error())
+		log.Fatalf("Error providing dependencies: %s", err.Error())
 	}
 
 	if err := graph.Populate(); err != nil {
-		log.Fatalf("Error populating dependencies: ", err.Error())
+		log.Fatalf("Error populating dependencies: %s", err.Error())
 	}
 
 	n := negroni.Classic()
