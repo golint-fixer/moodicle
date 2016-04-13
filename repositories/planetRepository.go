@@ -95,11 +95,11 @@ func readPlanet(db *planetRepository, file string) (models.Planet, error) {
 
 	content, err := db.OpenFile(file, os.O_RDONLY, 0)
 
-	defer content.Close()
-
 	if err != nil {
 		return planet, err
 	}
+
+	defer content.Close()
 
 	stats, _ := db.Stat(file)
 

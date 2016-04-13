@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/blang/vfs"
-	"log"
 	"os"
 	"strings"
 )
@@ -21,17 +20,17 @@ func (fs dummyFS) ReadDir(path string) ([]os.FileInfo, error) {
 
 func (fs dummyFS) OpenFile(name string, flag int, perm os.FileMode) (vfs.File, error) {
 
-	log.Println(name)
-
 	s := strings.Split(name, "/bob/")
 	id := strings.Split(s[1], ".")[0]
 	if id == "UNKNOWN" {
 		return nil, errors.New("An error")
 	}
 
-	log.Println(id)
-
 	return DumFile{Id: id}, nil
+}
+
+func (fs dummyFS) Remove(name string) error {
+	return nil
 }
 
 // Stat returns dummy error
@@ -50,6 +49,10 @@ func (f DumFile) Read(p []byte) (n int, err error) {
 	copy(p, []byte(fmt.Sprintf("{\"id\":\"%s\"}", f.Id)))
 
 	return 13, nil
+}
+
+func (f DumFile) Close() (err error) {
+	return nil
 }
 
 type DumFileInfo struct {
